@@ -1,14 +1,28 @@
 package main
 
-import "fmt"
-import "time"
-import "log"
-import "strings"
-import "github.com/gocolly/colly"
+import (
+	"log"
+	"strings"
+	"time"
+
+	"github.com/gocolly/colly"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/psychopenguin/kita-search/pkg/kita"
+)
 
 const start string = "https://www.berlin.de/sen/jugend/familie-und-kinder/kindertagesbetreuung/kitas/verzeichnis/ListeKitas.aspx"
 
 func main() {
+	db, err := gorm.Open("sqlite3", "kita.db")
+	if err != nil {
+		panic("Failed to open db")
+	}
+
+	defer db.Close()
+
+	db.AutoMigrate(&kita.Kita{})
+
 	c := colly.NewCollector(
 		colly.AllowedDomains("www.berlin.de"),
 		colly.Async(true),
@@ -32,8 +46,11 @@ func main() {
 		c.Visit(l)
 	})
 	c.OnHTML("#frmKitaDetailNeu", func(e *colly.HTMLElement) {
-		name := e.ChildText("#Allgemein h1")
-		fmt.Println(name)
+		var k kita.Kita
+		k.Permalink = e.Request.URL.String()
+		k.Name = e.ChildText("#Allgemein h1")
+		k.Email = e.ChildText("#HLinkEMail")
+		db.Create(&k)
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
