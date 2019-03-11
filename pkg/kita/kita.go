@@ -10,8 +10,9 @@ type District struct {
 
 type Kita struct {
 	gorm.Model
-	Name      string
-	Email     string
-	Permalink string `gorm:"UNIQUE"`
-	District  District
+	Name       string
+	Email      string
+	Permalink  string `gorm:"UNIQUE"`
+	District   District
+	DistrictID int
 }

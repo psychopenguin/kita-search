@@ -15,14 +15,14 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/jinzhu/gorm"
+	"github.com/psychopenguin/kita-search/pkg/kita"
 	"github.com/spf13/cobra"
 )
 
 // dbMigrateCmd represents the dbMigrate command
 var dbMigrateCmd = &cobra.Command{
-	Use:   "dbMigrate",
+	Use:   "migrate",
 	Short: "A brief description of your command",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -31,12 +31,12 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("dbMigrate called")
+		migrate()
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(dbMigrateCmd)
+	dbCmd.AddCommand(dbMigrateCmd)
 
 	// Here you will define your flags and configuration settings.
 
@@ -47,4 +47,14 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// dbMigrateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func migrate() {
+	db, err := gorm.Open("sqlite3", "kita.db")
+	if err != nil {
+		panic("Failed to open db")
+	}
+	defer db.Close()
+	db.AutoMigrate(&kita.Kita{}, &kita.District{})
+	db.Model(&kita.Kita{}).AddForeignKey("district_id", "districts(id)", "RESTRICT", "RESTRICT")
 }

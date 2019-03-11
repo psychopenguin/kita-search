@@ -65,8 +65,6 @@ func scrape() {
 
 	defer db.Close()
 
-	db.AutoMigrate(&kita.Kita{})
-
 	c := colly.NewCollector(
 		colly.AllowedDomains("www.berlin.de"),
 		colly.Async(true),
