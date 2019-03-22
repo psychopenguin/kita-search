@@ -18,7 +18,7 @@ func Migrate() {
 	db.LogMode(true)
 	m := gormigrate.New(db, gormigrate.DefaultOptions, []*gormigrate.Migration{
 		{
-			ID: "initial",
+			ID: "Initial",
 			Migrate: func(tx *gorm.DB) error {
 				type District struct {
 					gorm.Model
@@ -40,7 +40,8 @@ func Migrate() {
 			},
 		},
 	})
-	if err = m.Migrate(); err != nil {
+	err = m.Migrate()
+	if err != nil {
 		log.Fatalf("Could not migrate: %v", err)
 	}
 	log.Printf("Migration sucess")
