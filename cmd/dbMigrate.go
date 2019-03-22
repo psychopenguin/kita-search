@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"github.com/jinzhu/gorm"
 	"github.com/psychopenguin/kita-search/pkg/kita"
 	"github.com/spf13/cobra"
 )
@@ -50,11 +49,5 @@ func init() {
 }
 
 func migrate() {
-	db, err := gorm.Open("sqlite3", "kita.db")
-	if err != nil {
-		panic("Failed to open db")
-	}
-	defer db.Close()
-	db.AutoMigrate(&kita.Kita{}, &kita.District{})
-	db.Model(&kita.Kita{}).AddForeignKey("district_id", "districts(id)", "RESTRICT", "RESTRICT")
+	kita.Migrate()
 }
